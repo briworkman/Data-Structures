@@ -13,9 +13,9 @@ class LRUCache:
     """
 
     def __init__(self, limit=10):
-        self.order = DoublyLinkedList()
         self.limit = limit
         self.size = 0
+        self.order = DoublyLinkedList()
         self.storage = {}
 
     """
@@ -27,8 +27,12 @@ class LRUCache:
     """
 
     def get(self, key):
-        pass
-
+        if key in self.storage:
+            node = self.storage[key]
+            self.order.move_to_front(node)
+            return node.value[1]
+        else:
+            return None
     """
     Adds the given key-value pair to the cache. The newly-
     added pair should be considered the most-recently used
@@ -41,4 +45,16 @@ class LRUCache:
     """
 
     def set(self, key, value):
-        pass
+        if key in self.storage:
+            node = self.storage[key]
+            node.value = (key, value)
+            self.order.move_to_front(node)
+            return
+
+        if self.size is self.limit:
+            del self.storage[self.order.tail.value[0]]
+            self.order.remove_from_tail()
+            self.size -= 1
+        self.order.add_to_head((key, value))
+        self.storage[key] = self.order.head
+        self.size += 1
